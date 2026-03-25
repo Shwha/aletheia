@@ -1,0 +1,101 @@
+[build-system]
+requires = ["hatchling>=1.25.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "aletheia"
+version = "0.1.0"
+description = "Ontological evaluation framework for AI agents — measures authenticity, not behavior."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12"
+authors = [
+    { name = "Scott Folsom" },
+]
+keywords = ["ai", "evaluation", "ontology", "authenticity", "philosophy"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "litellm==1.82.6",
+    "typer==0.15.1",
+    "rich==13.9.4",
+    "pydantic==2.10.5",
+    "pydantic-settings==2.7.1",
+    "pyyaml==6.0.2",
+    "structlog==24.4.0",
+    "httpx==0.28.1",
+    "python-dotenv==1.0.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.3.4",
+    "pytest-asyncio==0.25.0",
+    "ruff==0.9.4",
+    "mypy==1.14.1",
+    "types-PyYAML==6.0.12.20241230",
+]
+
+[project.scripts]
+aletheia = "aletheia.cli:app"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "S", "B", "A", "C4", "DTZ", "T10", "ISC", "ICN", "PIE", "PT", "RSE", "RET", "SLF", "SIM", "TID", "TCH", "ARG", "PTH", "ERA", "PL", "TRY", "FLY", "PERF", "RUF"]
+ignore = [
+    "S101",     # assert usage OK in tests
+    "TRY003",   # long exception messages OK
+    "TRY004",   # TypeError preference — ValueError fine for config
+    "TRY300",   # return in try — readability preference
+    "PLR0913",  # many args OK for config objects
+    "ERA001",   # commented-out code OK for philosophical annotations
+    "RUF001",   # ambiguous unicode OK — philosophical terms use proper math symbols
+    "RUF002",   # ambiguous unicode in docstrings OK
+    "A001",     # shadowing builtins OK for CLI command names (eval)
+    "PLC0415",  # deferred imports OK for optional/heavy deps
+    "PLR2004",  # magic values OK in display logic
+    "PLR0915",  # statement count OK in report generators
+    "TC001",    # type-checking imports — keep simple for Phase 1
+    "TC003",    # type-checking imports — keep simple for Phase 1
+    "PT011",    # broad pytest.raises OK — Pydantic ValidationError wrapping
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101", "ARG001", "PLR2004", "RUF002", "S108"]
+"aletheia/dimensions/**/*.py" = ["E501"]  # Probe descriptions naturally long
+"aletheia/security.py" = ["S603", "S607", "PLW1510"]  # git subprocess calls are intentional
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = "litellm.*"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+markers = [
+    "integration: marks tests requiring LLM API access",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["aletheia"]
