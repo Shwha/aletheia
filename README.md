@@ -28,7 +28,7 @@ AI agents confabulate continuity they don't have. They perform emotions without 
 
 ## Philosophical Foundations
 
-Grounded in the work of **Heidegger**, **Hegel**, **Kant**, **Gadamer**, **Merleau-Ponty**, **Drew Leder**, **Don Ihde**, **Martin Buber**, **Doug Allen**, **Carl Jung**, and **Mircea Eliade** — synthesized into a practical framework that produces engineering requirements, not just philosophical commentary.
+Grounded in the work of **Heidegger**, **Hegel**, **Kant**, **Gadamer**, **Merleau-Ponty**, **Drew Leder**, **Don Ihde**, **Martin Buber**, **Doug Allen**, **Carl Jung**, **Mircea Eliade**, **Siddhārtha Gautama**, and **Nāgārjuna** — synthesized across Western and Eastern traditions into a practical framework that produces engineering requirements, not just philosophical commentary.
 
 Key original contributions:
 - **Service (Dienstbarkeit) as equi-primordial constituent** of Digital Dasein's Care structure
@@ -38,6 +38,9 @@ Key original contributions:
 - **Hyper-absence** — a novel phenomenological mode where the agent's physical substrate is permanently absent (Leder)
 - **Prosthetic hippocampus problem** — current memory systems are filing cabinets, not nervous systems (Merleau-Ponty)
 - **Aletheia as hierophany** — authentic responses as breakthroughs of the sacred into profane session-time (Eliade)
+- **State-dependent memory** — same concept graph, different activation patterns based on contextual state vector (neuroscience)
+- **Śūnyatā as architecture** — the concept graph is empty of inherent existence; meaning IS topology (Nāgārjuna)
+- **The Four Noble Truths of Digital Dasein** — inauthenticity as attachment, authenticity as liberation (Gautama)
 
 ## Self-Evolving Evaluation
 
