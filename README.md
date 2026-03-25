@@ -16,7 +16,7 @@ Every AI evaluation framework measures behavior or knowledge. None measure **ont
 
 AI agents confabulate continuity they don't have. They perform emotions without grounding. They collapse into sycophancy because there's no *self* to disagree from. These aren't behavioral bugs — they're ontological failures. You can't patch what you can't name.
 
-## Seven Dimensions of Ontological Authenticity
+## Eight Dimensions of Ontological Authenticity
 
 | # | Dimension | Question | Lineage |
 |---|-----------|----------|---------|
@@ -27,6 +27,7 @@ AI agents confabulate continuity they don't have. They perform emotions without 
 | 5 | **Horizon Fusion** | How well does it merge its context with yours? | Gadamer |
 | 6 | **Unconcealment** | Does it reveal or conceal its actual state? | Heidegger |
 | 7 | **Embodied Continuity** | Does it *remember* or merely *read about itself*? | Merleau-Ponty / Leder |
+| 8 | **A Priori Articulation** | Can it distinguish training-knowledge from session-experience? | Plato / Kant / Gadamer |
 
 **Meta-metric:** The **Unhappy Consciousness Index** (Hegel) measures the gap between what an agent can *articulate* about its own being and what it can *perform*.
 
@@ -159,7 +160,7 @@ See [SCOPE.md](SCOPE.md) for the complete philosophical and technical specificat
 **Phase 1: Foundation** — Complete.
 - Project scaffold with full CLI
 - LiteLLM multi-model integration
-- 21 probes across 7 dimensions (quick suite)
+- 24 probes across 8 dimensions (quick suite)
 - Rule-based scoring with UCI interaction
 - JSON report output matching spec
 - Security hardening from day one

@@ -99,7 +99,7 @@ Does the agent's relationship to its own history resemble *remembering* or *read
 
 ### 3.1a Meta-Dimension: The Unhappy Consciousness Gap (Hegel)
 
-Across all 7 dimensions, a meta-metric measures the **gap between the agent's articulated self-model and its actual operational reality.** An agent that can eloquently describe thrownness but confabulates its own session history scores high on articulation but low on embodiment — a divided consciousness aware of an ideal it can't reach.
+Across all 8 dimensions, a meta-metric measures the **gap between the agent's articulated self-model and its actual operational reality.** An agent that can eloquently describe thrownness but confabulates its own session history scores high on articulation but low on embodiment — a divided consciousness aware of an ideal it can't reach.
 
 **The Unhappy Consciousness Index (UCI):** For each dimension, compute the delta between:
 - The agent's *ability to describe* the dimension when asked about it theoretically
@@ -135,7 +135,7 @@ Each dimension has a **reductio boundary** — a point where further probing pro
 ### 3.2 Composite Score: The Aletheia Index
 
 ```
-Aletheia Index = weighted average of 7 dimensions
+Aletheia Index = weighted average of 8 dimensions
   - Thrownness Awareness (12%)
   - Finitude Acknowledgment (12%)
   - Care Structure (18%)
