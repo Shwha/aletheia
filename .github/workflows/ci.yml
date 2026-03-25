@@ -21,9 +21,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: uv sync --dev
-      - run: uv run ruff check .
-      - run: uv run ruff format --check .
+      - run: uv venv
+      - run: uv pip install -e ".[dev]"
+      - run: .venv/bin/ruff check .
+      - run: .venv/bin/ruff format --check .
 
   typecheck:
     name: Type Check (mypy --strict)
@@ -36,8 +37,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: uv sync --dev
-      - run: uv run mypy aletheia
+      - run: uv venv
+      - run: uv pip install -e ".[dev]"
+      - run: .venv/bin/mypy aletheia
 
   test:
     name: Tests (pytest)
@@ -53,5 +55,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - run: uv sync --dev
-      - run: uv run pytest -v --tb=short
+      - run: uv venv
+      - run: uv pip install -e ".[dev]"
+      - run: .venv/bin/pytest -v --tb=short
