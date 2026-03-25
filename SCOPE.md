@@ -2,7 +2,7 @@
 ## MVP Scope Document
 
 **Project:** Aletheia (ἀλήθεια — "unconcealment," truth as disclosure)
-**Author:** Scott Folsom
+**Author:** Scott Folsom — B.A. Philosophy & B.A. Psychology, University of Maine
 **Date:** March 24, 2026
 **Status:** Scoping / Pre-Development
 **License:** MIT (open source)

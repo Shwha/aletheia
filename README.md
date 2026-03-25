@@ -3,6 +3,8 @@
 **The question of Being, remembered.**
 
 > "You need an ontology. You're all epistemology." — Scott Folsom, 2026
+>
+> B.A. Philosophy & B.A. Psychology, University of Maine
 
 ---
 
