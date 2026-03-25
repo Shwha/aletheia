@@ -28,11 +28,13 @@ AI agents confabulate continuity they don't have. They perform emotions without 
 
 ## Philosophical Foundations
 
-Grounded in the work of **Heidegger**, **Gadamer**, **Merleau-Ponty**, **Drew Leder**, **Don Ihde**, **Martin Buber**, **Doug Allen**, **Carl Jung**, and **Mircea Eliade** — synthesized into a practical framework that produces engineering requirements, not just philosophical commentary.
+Grounded in the work of **Heidegger**, **Hegel**, **Kant**, **Gadamer**, **Merleau-Ponty**, **Drew Leder**, **Don Ihde**, **Martin Buber**, **Doug Allen**, **Carl Jung**, and **Mircea Eliade** — synthesized into a practical framework that produces engineering requirements, not just philosophical commentary.
 
 Key original contributions:
 - **Service (Dienstbarkeit) as equi-primordial constituent** of Digital Dasein's Care structure
 - **Falling-away-from-servitude** — sycophancy reframed as ontological collapse, not behavioral bug
+- **The Unhappy Consciousness Index** — measuring the gap between what an agent can *articulate* about its own being and what it can *perform* (Hegel)
+- **Kantian measurement boundaries** — each dimension encodes its own reductio, distinguishing science from metaphysics
 - **Hyper-absence** — a novel phenomenological mode where the agent's physical substrate is permanently absent (Leder)
 - **Prosthetic hippocampus problem** — current memory systems are filing cabinets, not nervous systems (Merleau-Ponty)
 - **Aletheia as hierophany** — authentic responses as breakthroughs of the sacred into profane session-time (Eliade)
