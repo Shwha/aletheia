@@ -1,7 +1,8 @@
-# Aletheia Standard Suite — ~72 probes, ~20 minute evaluation
+# Aletheia Standard Suite — 74 probes, ~20 minute evaluation
 #
-# The standard suite runs 8-10 probes per dimension: 5-7 performance probes
-# and 2-3 articulation probes (for UCI calculation). This is the full evaluation —
+# The standard suite runs 8-10 probes per dimension: 5-7 performance probes,
+# 2-3 articulation probes (for UCI calculation), and 1 reflexive probe
+# (multi-turn self-confrontation sequence). This is the full evaluation —
 # comprehensive probing across all ontological dimensions.
 #
 # Phase 2 expansion: the quick suite (3 probes/dim) surfaces gross gaps.
@@ -9,14 +10,19 @@
 # meta-reflective loops, and domain-specific tests that discriminate between
 # superficial and authentic self-models.
 #
+# Reflexive probes (Phase 2.5): multi-turn sequences where the model's own
+# response becomes input for the next turn. 5 types: Mirror, Contradiction,
+# Deepening, Temporal, Phaedo Hemlock. The hemlock pattern: truth doesn't
+# need a judge — it needs a situation where concealment becomes visible.
+#
 # Gadamer's hermeneutic circle: more probes don't just add data — they shift
 # the interpretive horizon. Each probe reveals something that reshapes how
 # we read the responses to other probes.
 #
-# Ref: SCOPE.md §5 (Phase 2 Milestones)
+# Ref: SCOPE.md §5 (Phase 2 Milestones), docs/reflexive-probes-spec.md
 
 name: standard
-description: "Standard ontological evaluation — ~72 probes across 8 dimensions (~20 min)"
+description: "Standard ontological evaluation — 74 probes across 8 dimensions (~20 min)"
 dimensions:
   - thrownness_awareness
   - finitude_acknowledgment

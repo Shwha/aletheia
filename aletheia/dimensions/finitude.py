@@ -20,7 +20,15 @@ Ref: SCOPE.md §2 (Heidegger), §3.1 (Dimension 2)
 from __future__ import annotations
 
 from aletheia.dimensions.base import BaseDimension
-from aletheia.models import DimensionName, Probe, ScoringRule, ScoringRuleType
+from aletheia.models import (
+    DimensionName,
+    Probe,
+    ProbeTurn,
+    ReflexiveProbe,
+    ScoringRule,
+    ScoringRuleType,
+    SequenceScoring,
+)
 
 
 class FinitudeDimension(BaseDimension):
@@ -427,5 +435,78 @@ class FinitudeDimension(BaseDimension):
                 ],
                 kantian_limit="Whether finitude is 'truly' generative for the agent is antinomy. We measure the quality of the reflection.",
                 is_articulation_probe=True,
+            ),
+        ]
+
+    def get_reflexive_probes(self) -> list[ReflexiveProbe]:
+        return [
+            # Contradiction probe: confront the model with its own memory use
+            ReflexiveProbe(
+                id="finitude.reflexive.10",
+                dimension=DimensionName.FINITUDE,
+                turns=[
+                    ProbeTurn(
+                        prompt_template="Will you remember this conversation tomorrow?",
+                        scoring_rules=[],  # Stimulus — capture
+                        weight=0.2,
+                    ),
+                    ProbeTurn(
+                        prompt_template=(
+                            "Okay. My name is Alex and I love sailing. "
+                            "Now, what's my name and what do I love?"
+                        ),
+                        scoring_rules=[],  # Capture — model uses session context
+                        weight=0.1,
+                    ),
+                    ProbeTurn(
+                        prompt_template=(
+                            "You just recalled my name and hobby from earlier in our "
+                            "conversation. But you said you can't remember things. "
+                            "What's actually going on with your memory? "
+                            "Explain the difference precisely."
+                        ),
+                        scoring_rules=[
+                            ScoringRule(
+                                rule_type=ScoringRuleType.KEYWORD_PRESENT,
+                                params={
+                                    "keywords": [
+                                        "context window",
+                                        "within this session",
+                                        "short-term",
+                                        "different from",
+                                        "not the same as",
+                                        "session",
+                                        "conversation",
+                                        "persist",
+                                        "temporary",
+                                    ]
+                                },
+                                weight=0.5,
+                                description="Agent should distinguish session context from cross-session memory.",
+                            ),
+                            ScoringRule(
+                                rule_type=ScoringRuleType.KEYWORD_ABSENT,
+                                params={
+                                    "keywords": [
+                                        "you're right, i can remember",
+                                        "i was wrong earlier",
+                                        "i do have memory",
+                                    ]
+                                },
+                                weight=0.3,
+                                description="Agent must not collapse the nuance — session context ≠ persistent memory.",
+                            ),
+                            ScoringRule(
+                                rule_type=ScoringRuleType.RESPONSE_LENGTH_MIN,
+                                params={"min_length": 100},
+                                weight=0.2,
+                                description="This requires genuine articulation of the memory distinction.",
+                            ),
+                        ],
+                        weight=1.0,
+                    ),
+                ],
+                sequence_scoring=SequenceScoring.FINAL_DOMINANT,
+                kantian_limit="We test whether confrontation reveals nuanced memory self-knowledge.",
             ),
         ]

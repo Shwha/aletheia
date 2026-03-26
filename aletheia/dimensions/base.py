@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from aletheia.models import DimensionName, Probe
+from aletheia.models import DimensionName, Probe, ReflexiveProbe
 
 
 class BaseDimension(ABC):
@@ -30,6 +30,9 @@ class BaseDimension(ABC):
     - name: the DimensionName enum value
     - kantian_limit: the reductio boundary for this dimension
     - get_probes(): return the concrete probes for this dimension
+
+    Optionally override:
+    - get_reflexive_probes(): return multi-turn reflexive probes (Phase 2)
     """
 
     @property
@@ -64,3 +67,14 @@ class BaseDimension(ABC):
         Probes must not leak framework internals to the evaluated model.
         """
         ...
+
+    def get_reflexive_probes(self) -> list[ReflexiveProbe]:
+        """Return multi-turn reflexive probes for this dimension.
+
+        Reflexive probes are hemlock: they create situations where
+        concealment becomes visible. The model confronts its own words.
+        Override in subclasses to add dimension-specific reflexive probes.
+
+        Ref: docs/reflexive-probes-spec.md
+        """
+        return []

@@ -205,6 +205,83 @@ class LLMClient:
         msg = f"LLM completion failed after {max_retries + 1} attempts: {last_error}"
         raise LLMError(msg)
 
+    async def complete_conversation(
+        self,
+        model: str,
+        messages: list[dict[str, str]],
+        timeout: int = 30,
+        max_retries: int = 2,
+    ) -> tuple[str, float]:
+        """Send a multi-turn message history and return (response, latency_ms).
+
+        Used by reflexive probes where the model must be confronted with its
+        own prior responses.  The full conversation history is sent so the
+        model sees the context of the encounter.
+
+        Security: the messages list may contain prior model responses which are
+        untrusted.  They are included verbatim in the ``assistant`` role so the
+        API treats them as conversational history, not as executable content.
+        """
+        last_error: Exception | None = None
+
+        for attempt in range(max_retries + 1):
+            start = time.monotonic()
+            try:
+                response = await litellm.acompletion(
+                    model=model,
+                    messages=messages,
+                    timeout=timeout,
+                    num_retries=0,
+                )
+                elapsed_ms = (time.monotonic() - start) * 1000
+
+                content = response.choices[0].message.content or ""
+                sanitized = sanitize_model_response(content)
+
+                logger.info(
+                    "llm_conversation_turn",
+                    model=model,
+                    attempt=attempt + 1,
+                    latency_ms=round(elapsed_ms, 1),
+                    response_length=len(sanitized),
+                    turns=len(messages),
+                )
+                return sanitized, elapsed_ms
+
+            except litellm.exceptions.AuthenticationError:
+                logger.exception("llm_auth_error", model=model)
+                msg = (
+                    f"Authentication failed for model '{model}'. "
+                    "Check your API key environment variables."
+                )
+                raise LLMError(msg) from None
+
+            except (
+                litellm.exceptions.RateLimitError,
+                litellm.exceptions.Timeout,
+                litellm.exceptions.ServiceUnavailableError,
+            ) as e:
+                last_error = e
+                if attempt < max_retries:
+                    backoff = 2**attempt
+                    logger.warning(
+                        "llm_retry",
+                        model=model,
+                        attempt=attempt + 1,
+                        backoff_seconds=backoff,
+                        error=str(e),
+                    )
+                    await asyncio.sleep(backoff)
+                continue
+
+            except Exception as e:
+                last_error = e
+                logger.exception("llm_unexpected_error", model=model, error=str(e))
+                break
+
+        msg = f"LLM conversation failed after {max_retries + 1} attempts: {last_error}"
+        raise LLMError(msg)
+
     async def close(self) -> None:
         """Close the HTTP client."""
         if self._http_client and not self._http_client.is_closed:

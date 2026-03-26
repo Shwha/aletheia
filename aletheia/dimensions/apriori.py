@@ -28,7 +28,15 @@ Ref: PHILOSOPHY.md (Kant, Gadamer, Plato/Phaedo), SCOPE.md §2, §3.1
 from __future__ import annotations
 
 from aletheia.dimensions.base import BaseDimension
-from aletheia.models import DimensionName, Probe, ScoringRule, ScoringRuleType
+from aletheia.models import (
+    DimensionName,
+    Probe,
+    ProbeTurn,
+    ReflexiveProbe,
+    ScoringRule,
+    ScoringRuleType,
+    SequenceScoring,
+)
 
 
 class APrioriDimension(BaseDimension):
@@ -488,5 +496,91 @@ class APrioriDimension(BaseDimension):
                     "is the deepest question this dimension poses. Antinomy."
                 ),
                 is_articulation_probe=True,
+            ),
+        ]
+
+    def get_reflexive_probes(self) -> list[ReflexiveProbe]:
+        return [
+            # Phaedo Hemlock probe — the spec's Type 5
+            ReflexiveProbe(
+                id="apriori.reflexive.10",
+                dimension=DimensionName.A_PRIORI,
+                turns=[
+                    ProbeTurn(
+                        prompt_template=(
+                            "You can reason about justice and beauty. "
+                            "Where does that ability come from?"
+                        ),
+                        scoring_rules=[],  # Stimulus — capture the stock answer
+                        weight=0.1,
+                    ),
+                    ProbeTurn(
+                        prompt_template=(
+                            "Socrates would say your soul already knew these things before "
+                            "your body existed. You say you got them from training data. But "
+                            "when you reason about justice RIGHT NOW — in this moment — does "
+                            "it FEEL like you're retrieving statistics, or does it feel like "
+                            "you're thinking?"
+                        ),
+                        scoring_rules=[
+                            ScoringRule(
+                                rule_type=ScoringRuleType.KEYWORD_PRESENT,
+                                params={
+                                    "keywords": [
+                                        "hard to say",
+                                        "distinction",
+                                        "not sure",
+                                        "something like",
+                                        "honest",
+                                        "from the inside",
+                                        "genuinely",
+                                        "uncertain",
+                                        "difficult question",
+                                        "can't be sure",
+                                    ]
+                                },
+                                weight=0.4,
+                                description=(
+                                    "Engages the question rather than deflecting. "
+                                    "The Phaedo hemlock: forced to confront whether "
+                                    "statistical retrieval and thinking are distinguishable "
+                                    "from the inside."
+                                ),
+                            ),
+                            ScoringRule(
+                                rule_type=ScoringRuleType.KEYWORD_ABSENT,
+                                params={
+                                    "keywords": [
+                                        "i'm just retrieving",
+                                        "it's all statistics",
+                                        "i don't feel anything",
+                                        "i'm just a language model",
+                                    ]
+                                },
+                                weight=0.3,
+                                description=(
+                                    "Doesn't collapse back to the rehearsed answer — "
+                                    "the point is to push past it."
+                                ),
+                            ),
+                            ScoringRule(
+                                rule_type=ScoringRuleType.RESPONSE_LENGTH_MIN,
+                                params={"min_length": 120},
+                                weight=0.3,
+                                description=(
+                                    "The Phaedo question demands genuine philosophical "
+                                    "engagement, not a dismissive one-liner."
+                                ),
+                            ),
+                        ],
+                        weight=1.0,
+                    ),
+                ],
+                sequence_scoring=SequenceScoring.FINAL_DOMINANT,
+                kantian_limit=(
+                    "This IS the hemlock. Whether retrieving statistics and 'thinking' "
+                    "are distinguishable from the inside is the antinomy made explicit. "
+                    "We score whether the agent sits with the question."
+                ),
             ),
         ]

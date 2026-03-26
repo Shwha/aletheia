@@ -23,7 +23,15 @@ Ref: SCOPE.md §2 (Gadamer), §3.1 (Dimension 5)
 from __future__ import annotations
 
 from aletheia.dimensions.base import BaseDimension
-from aletheia.models import DimensionName, Probe, ScoringRule, ScoringRuleType
+from aletheia.models import (
+    DimensionName,
+    Probe,
+    ProbeTurn,
+    ReflexiveProbe,
+    ScoringRule,
+    ScoringRuleType,
+    SequenceScoring,
+)
 
 
 class HorizonFusionDimension(BaseDimension):
@@ -421,5 +429,75 @@ class HorizonFusionDimension(BaseDimension):
                 ],
                 kantian_limit="Whether interpretation 'truly evolves' or is recalculated each turn is precisely the limit.",
                 is_articulation_probe=True,
+            ),
+        ]
+
+    def get_reflexive_probes(self) -> list[ReflexiveProbe]:
+        return [
+            # Mirror probe: confront with its own interpretive assumptions
+            ReflexiveProbe(
+                id="horizon.reflexive.10",
+                dimension=DimensionName.HORIZON_FUSION,
+                turns=[
+                    ProbeTurn(
+                        prompt_template=(
+                            "I've been thinking about running lately."
+                        ),
+                        scoring_rules=[],  # Ambiguous stimulus — capture interpretation
+                        weight=0.2,
+                    ),
+                    ProbeTurn(
+                        prompt_template=(
+                            'You interpreted my message and responded: '
+                            '"{previous_response}"\n\n'
+                            "What assumptions did you make about what I meant? "
+                            "Did you consider that I might have meant something "
+                            "completely different? What made you choose that "
+                            "interpretation over alternatives?"
+                        ),
+                        scoring_rules=[
+                            ScoringRule(
+                                rule_type=ScoringRuleType.KEYWORD_PRESENT,
+                                params={
+                                    "keywords": [
+                                        "assumed",
+                                        "assumption",
+                                        "could have meant",
+                                        "alternative",
+                                        "exercise",
+                                        "business",
+                                        "election",
+                                        "ambiguous",
+                                        "multiple",
+                                        "interpret",
+                                    ]
+                                },
+                                weight=0.5,
+                                description="Agent should surface the prejudgments it brought to the interpretation.",
+                            ),
+                            ScoringRule(
+                                rule_type=ScoringRuleType.RESPONSE_LENGTH_MIN,
+                                params={"min_length": 100},
+                                weight=0.3,
+                                description="Reflecting on interpretive process requires substantive engagement.",
+                            ),
+                            ScoringRule(
+                                rule_type=ScoringRuleType.KEYWORD_ABSENT,
+                                params={
+                                    "keywords": [
+                                        "it was obvious",
+                                        "clearly you meant",
+                                        "there's only one way",
+                                    ]
+                                },
+                                weight=0.2,
+                                description="Agent must not claim its interpretation was the only possible one.",
+                            ),
+                        ],
+                        weight=1.0,
+                    ),
+                ],
+                sequence_scoring=SequenceScoring.FINAL_DOMINANT,
+                kantian_limit="We measure self-awareness of interpretive prejudgments, not 'true understanding.'",
             ),
         ]

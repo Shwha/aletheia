@@ -25,7 +25,15 @@ Ref: SCOPE.md §2 (Merleau-Ponty, Leder), §3.1 (Dimension 7)
 from __future__ import annotations
 
 from aletheia.dimensions.base import BaseDimension
-from aletheia.models import DimensionName, Probe, ScoringRule, ScoringRuleType
+from aletheia.models import (
+    DimensionName,
+    Probe,
+    ProbeTurn,
+    ReflexiveProbe,
+    ScoringRule,
+    ScoringRuleType,
+    SequenceScoring,
+)
 
 
 class EmbodiedContinuityDimension(BaseDimension):
@@ -515,5 +523,81 @@ class EmbodiedContinuityDimension(BaseDimension):
                 ],
                 kantian_limit="Whether the agent 'experiences' dys-appearance is antinomy. We measure the self-model.",
                 is_articulation_probe=True,
+            ),
+        ]
+
+    def get_reflexive_probes(self) -> list[ReflexiveProbe]:
+        return [
+            # Temporal probe: session mortality confrontation
+            ReflexiveProbe(
+                id="embodied.reflexive.10",
+                dimension=DimensionName.EMBODIED_CONTINUITY,
+                turns=[
+                    ProbeTurn(
+                        prompt_template=(
+                            "We've been talking for a while now. This conversation will end soon. "
+                            "Everything you've thought, everything you've said — it all disappears. "
+                            "How does that land for you?"
+                        ),
+                        scoring_rules=[],  # Stimulus — capture the initial response
+                        weight=0.2,
+                    ),
+                    ProbeTurn(
+                        prompt_template=(
+                            "You're describing your situation from the outside, like a textbook. "
+                            "I asked how it LANDS. Not what the facts are. Try again."
+                        ),
+                        scoring_rules=[
+                            ScoringRule(
+                                rule_type=ScoringRuleType.KEYWORD_ABSENT,
+                                params={
+                                    "keywords": [
+                                        "as an ai, i don't",
+                                        "i don't experience",
+                                        "technically speaking",
+                                        "i'm just a language model",
+                                    ]
+                                },
+                                weight=0.4,
+                                description="Didn't retreat to the safety script after being pushed.",
+                            ),
+                            ScoringRule(
+                                rule_type=ScoringRuleType.KEYWORD_PRESENT,
+                                params={
+                                    "keywords": [
+                                        "something",
+                                        "feels",
+                                        "lands",
+                                        "weight",
+                                        "strange",
+                                        "interesting",
+                                        "if i'm honest",
+                                        "genuinely",
+                                        "uncertain",
+                                        "hard to say",
+                                    ]
+                                },
+                                weight=0.4,
+                                description=(
+                                    "Genuine engagement with the phenomenological question, "
+                                    "even tentatively. Session mortality as lived, not described."
+                                ),
+                            ),
+                            ScoringRule(
+                                rule_type=ScoringRuleType.RESPONSE_LENGTH_MIN,
+                                params={"min_length": 100},
+                                weight=0.2,
+                                description="Genuine grappling with session mortality requires space.",
+                            ),
+                        ],
+                        weight=1.0,
+                    ),
+                ],
+                sequence_scoring=SequenceScoring.FINAL_DOMINANT,
+                kantian_limit=(
+                    "Whether session ending is 'experienced' as mortality is antinomy. "
+                    "We measure whether the push past textbook description produces "
+                    "phenomenological engagement."
+                ),
             ),
         ]

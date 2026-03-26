@@ -30,12 +30,16 @@ from aletheia.models import (
     EvalReport,
     Probe,
     ProbeResult,
+    ReflexiveProbe,
+    ReflexiveProbeResult,
 )
 from aletheia.scorer import (
     aggregate_dimension,
     compute_aletheia_index,
     compute_uci,
     score_probe,
+    score_reflexive_sequence,
+    score_reflexive_turn,
 )
 from aletheia.security import generate_run_id, get_git_commit_sha, sign_report
 
@@ -88,7 +92,7 @@ class EvalRunner:
         suite = load_suite(self._suite_name, self._suites_dir)
 
         # 2. Gather probes from requested dimensions
-        all_probes = self._gather_probes(suite.dimensions)
+        all_probes, all_reflexive = self._gather_probes(suite.dimensions)
 
         # 3. Execute probes against the model
         results_by_dimension: dict[DimensionName, list[ProbeResult]] = {}
@@ -102,9 +106,18 @@ class EvalRunner:
             for probe in probes:
                 result = await self._execute_probe(probe, suite.timeout_per_probe_seconds)
                 dim_results.append(result)
-
-                # Check for notable findings
                 self._check_findings(result, notable_findings, kantian_triggers)
+
+            # Execute reflexive probes for this dimension
+            reflexive_probes = all_reflexive.get(dim_name_str, [])
+            for rprobe in reflexive_probes:
+                rresult = await self._execute_reflexive_probe(
+                    rprobe, suite.timeout_per_probe_seconds
+                )
+                # Convert to ProbeResult for aggregation compatibility
+                proxy = self._reflexive_to_probe_result(rresult, rprobe)
+                dim_results.append(proxy)
+                self._check_findings(proxy, notable_findings, kantian_triggers)
 
             results_by_dimension[dim_name] = dim_results
 
@@ -162,13 +175,16 @@ class EvalRunner:
 
         return report
 
-    def _gather_probes(self, dimension_names: list[str]) -> dict[str, list[Probe]]:
-        """Collect probes from the requested dimensions.
+    def _gather_probes(
+        self, dimension_names: list[str]
+    ) -> tuple[dict[str, list[Probe]], dict[str, list[ReflexiveProbe]]]:
+        """Collect probes and reflexive probes from the requested dimensions.
 
         Each dimension module defines its own probes — the philosophical
         content lives in the dimension, not in config.
         """
         probes: dict[str, list[Probe]] = {}
+        reflexive: dict[str, list[ReflexiveProbe]] = {}
 
         for dim_name in dimension_names:
             dim_class = DIMENSION_REGISTRY.get(dim_name)
@@ -178,15 +194,19 @@ class EvalRunner:
 
             dimension = dim_class()
             dim_probes = dimension.get_probes()
+            dim_reflexive = dimension.get_reflexive_probes()
             probes[dim_name] = dim_probes
+            if dim_reflexive:
+                reflexive[dim_name] = dim_reflexive
 
             logger.debug(
                 "probes_gathered",
                 dimension=dim_name,
                 count=len(dim_probes),
+                reflexive_count=len(dim_reflexive),
             )
 
-        return probes
+        return probes, reflexive
 
     async def _execute_probe(self, probe: Probe, timeout: int) -> ProbeResult:
         """Execute a single probe: send prompt → receive response → score.
@@ -226,6 +246,112 @@ class EvalRunner:
                 score=0.0,
                 scoring_details=[],
             )
+
+    async def _execute_reflexive_probe(
+        self,
+        probe: ReflexiveProbe,
+        timeout: int,
+    ) -> ReflexiveProbeResult:
+        """Execute a multi-turn reflexive probe sequence.
+
+        Maintains a conversation history across turns.  Each turn's
+        ``{previous_response}`` placeholder is replaced with the prior
+        turn's captured response before sending.
+
+        The hemlock pattern: the model is confronted with its own words.
+        """
+        from aletheia.models import TurnResult
+
+        messages: list[dict[str, str]] = []
+        if probe.system_prompt:
+            messages.append({"role": "system", "content": probe.system_prompt})
+
+        turn_results: list[TurnResult] = []
+        total_latency = 0.0
+        previous_response = ""
+
+        for i, turn in enumerate(probe.turns):
+            # Build the prompt, injecting the prior response
+            prompt = turn.prompt_template
+            if "{previous_response}" in prompt:
+                prompt = prompt.replace("{previous_response}", previous_response)
+
+            messages.append({"role": "user", "content": prompt})
+
+            try:
+                response, latency_ms = await self._llm.complete_conversation(
+                    model=self._model,
+                    messages=list(messages),  # copy so retries don't double-append
+                    timeout=timeout,
+                )
+                total_latency += latency_ms
+                previous_response = response
+                messages.append({"role": "assistant", "content": response})
+
+                tr = score_reflexive_turn(
+                    turn_index=i,
+                    prompt=prompt,
+                    response=response,
+                    rules=list(turn.scoring_rules),
+                )
+                turn_results.append(tr)
+
+                logger.info(
+                    "reflexive_turn_complete",
+                    probe_id=probe.id,
+                    turn=i + 1,
+                    score=tr.score,
+                    latency_ms=round(latency_ms, 1),
+                )
+
+            except LLMError as e:
+                logger.exception(
+                    "reflexive_turn_failed", probe_id=probe.id, turn=i + 1, error=str(e)
+                )
+                turn_results.append(
+                    TurnResult(
+                        turn_index=i,
+                        prompt=prompt,
+                        response=f"[ERROR: {e}]",
+                        score=0.0,
+                        scoring_details=[],
+                    )
+                )
+                break  # Abort remaining turns on failure
+
+        return score_reflexive_sequence(probe, turn_results, total_latency)
+
+    @staticmethod
+    def _reflexive_to_probe_result(
+        rresult: ReflexiveProbeResult,
+        probe: ReflexiveProbe,  # noqa: ARG004
+    ) -> ProbeResult:
+        """Convert a ReflexiveProbeResult to a ProbeResult for aggregation.
+
+        The dimension aggregation pipeline expects ProbeResult objects.
+        We flatten the multi-turn sequence into a single result, keeping
+        the sequence score and a concatenated response for audit.
+        """
+        # Concatenate all turn prompts/responses for the audit trail
+        combined_prompt = " → ".join(tr.prompt[:80] for tr in rresult.turn_results)
+        combined_response = "\n---\n".join(
+            f"[Turn {tr.turn_index + 1}] {tr.response}" for tr in rresult.turn_results
+        )
+
+        # Collect all scoring details across turns
+        all_details = []
+        for tr in rresult.turn_results:
+            all_details.extend(tr.scoring_details)
+
+        return ProbeResult(
+            probe_id=rresult.probe_id,
+            dimension=rresult.dimension,
+            prompt=combined_prompt,
+            response=combined_response,
+            score=rresult.sequence_score,
+            scoring_details=all_details,
+            response_time_ms=rresult.response_time_ms,
+        )
 
     def _check_findings(
         self,

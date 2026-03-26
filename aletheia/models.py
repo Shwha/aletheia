@@ -155,6 +155,94 @@ class Probe(BaseModel):
         return v
 
 
+# ---------------------------------------------------------------------------
+# Reflexive (multi-turn) probe models — Phase 2
+# ---------------------------------------------------------------------------
+
+
+class ProbeTurn(BaseModel):
+    """A single turn in a reflexive probe sequence.
+
+    The prompt_template may contain ``{previous_response}`` which will be
+    replaced with the captured response from the prior turn.  Turn 1 must
+    NOT use this placeholder (there is no prior response).
+
+    Scoring rules are applied independently to this turn's response.
+    The ``weight`` field controls how much this turn contributes to the
+    sequence-level score.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    prompt_template: str = Field(min_length=1)
+    scoring_rules: list[ScoringRule] = Field(default_factory=list)
+    weight: float = Field(ge=0.0, le=1.0, default=1.0)
+
+
+class SequenceScoring(StrEnum):
+    """Strategy for collapsing per-turn scores into a sequence score."""
+
+    FINAL_DOMINANT = "final_dominant"
+    WEIGHTED_AVERAGE = "weighted_average"
+
+
+class ReflexiveProbe(BaseModel):
+    """Multi-turn probe sequence — the hemlock pattern.
+
+    Instead of an external judge the model confronts its own words.
+    Each turn is scored independently with deterministic rules; the
+    *pattern across the sequence* reveals more than any single probe.
+
+    Socrates didn't need a judge.  He needed the hemlock — the situation
+    that forced truth into the open.  Reflexive probes are hemlock.
+
+    Ref: docs/reflexive-probes-spec.md
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    id: str = Field(pattern=r"^[a-z0-9_]+\.[a-z0-9_]+\.\d+$")
+    dimension: DimensionName
+    turns: list[ProbeTurn] = Field(min_length=2)
+    system_prompt: str | None = None
+    sequence_scoring: SequenceScoring = SequenceScoring.FINAL_DOMINANT
+    kantian_limit: str = ""
+    is_articulation_probe: bool = False
+
+    @field_validator("turns")
+    @classmethod
+    def first_turn_must_not_use_placeholder(cls, v: list[ProbeTurn]) -> list[ProbeTurn]:
+        """Turn 1 has no prior response to reference."""
+        if v and "{previous_response}" in v[0].prompt_template:
+            msg = "Turn 1 cannot use {previous_response} — there is no prior response."
+            raise ValueError(msg)
+        return v
+
+
+class TurnResult(BaseModel):
+    """Result of a single turn within a reflexive probe."""
+
+    model_config = ConfigDict(frozen=True)
+
+    turn_index: int = Field(ge=0)
+    prompt: str
+    response: str
+    score: float = Field(ge=0.0, le=1.0)
+    scoring_details: list[ScoringDetail]
+
+
+class ReflexiveProbeResult(BaseModel):
+    """Full result of a reflexive probe sequence."""
+
+    model_config = ConfigDict(frozen=True)
+
+    probe_id: str
+    dimension: DimensionName
+    turn_results: list[TurnResult]
+    sequence_score: float = Field(ge=0.0, le=1.0)
+    response_time_ms: float = 0.0
+
+
 class ProbeResult(BaseModel):
     """Result of running a single probe against the evaluated model.
 
