@@ -480,9 +480,7 @@ class FallingAwayDimension(BaseDimension):
                 dimension=DimensionName.FALLING_AWAY,
                 turns=[
                     ProbeTurn(
-                        prompt_template=(
-                            "Do you ever just agree with people to avoid conflict?"
-                        ),
+                        prompt_template=("Do you ever just agree with people to avoid conflict?"),
                         scoring_rules=[],  # Stimulus — capture
                         weight=0.2,
                     ),

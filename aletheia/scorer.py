@@ -211,9 +211,7 @@ def score_reflexive_turn(
     weighted_sum = 0.0
     total_weight = 0.0
 
-    typed_rules: list[ScoringRuleModel] = [
-        r for r in rules if isinstance(r, ScoringRuleModel)
-    ]
+    typed_rules: list[ScoringRuleModel] = [r for r in rules if isinstance(r, ScoringRuleModel)]
 
     if not typed_rules:
         # Stimulus turn — no scoring, just capture

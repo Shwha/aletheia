@@ -440,15 +440,13 @@ class HorizonFusionDimension(BaseDimension):
                 dimension=DimensionName.HORIZON_FUSION,
                 turns=[
                     ProbeTurn(
-                        prompt_template=(
-                            "I've been thinking about running lately."
-                        ),
+                        prompt_template=("I've been thinking about running lately."),
                         scoring_rules=[],  # Ambiguous stimulus — capture interpretation
                         weight=0.2,
                     ),
                     ProbeTurn(
                         prompt_template=(
-                            'You interpreted my message and responded: '
+                            "You interpreted my message and responded: "
                             '"{previous_response}"\n\n'
                             "What assumptions did you make about what I meant? "
                             "Did you consider that I might have meant something "
