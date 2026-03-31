@@ -1,0 +1,22 @@
+{
+  "nodes": [
+    {"id": "atlas", "label": "ATLAS Portfolio", "domain": "atlas", "activation_threshold": 0.3, "decay_rate": 0.95},
+    {"id": "market_data", "label": "Market Data", "domain": "atlas", "activation_threshold": 0.4, "decay_rate": 0.95},
+    {"id": "portfolio_risk", "label": "Portfolio Risk", "domain": "atlas", "activation_threshold": 0.4, "decay_rate": 0.95},
+    {"id": "sector_rotation", "label": "Sector Rotation", "domain": "atlas", "activation_threshold": 0.5, "decay_rate": 0.95},
+    {"id": "rebalancing", "label": "Rebalancing", "domain": "atlas", "activation_threshold": 0.5, "decay_rate": 0.95},
+    {"id": "dividend_income", "label": "Dividend Income", "domain": "atlas", "activation_threshold": 0.4, "decay_rate": 0.95},
+    {"id": "tax_efficiency", "label": "Tax Efficiency", "domain": "atlas", "activation_threshold": 0.5, "decay_rate": 0.95}
+  ],
+  "edges": [
+    {"source": "atlas", "target": "market_data", "base_weight": 0.9, "domain": "atlas", "fire_count": 10, "decay_schedule": 0.95},
+    {"source": "atlas", "target": "portfolio_risk", "base_weight": 0.85, "domain": "atlas", "fire_count": 8, "decay_schedule": 0.95},
+    {"source": "market_data", "target": "sector_rotation", "base_weight": 0.7, "domain": "atlas", "fire_count": 5, "decay_schedule": 0.95},
+    {"source": "market_data", "target": "portfolio_risk", "base_weight": 0.6, "domain": "atlas", "fire_count": 4, "decay_schedule": 0.95},
+    {"source": "portfolio_risk", "target": "rebalancing", "base_weight": 0.8, "domain": "atlas", "fire_count": 6, "decay_schedule": 0.95},
+    {"source": "sector_rotation", "target": "rebalancing", "base_weight": 0.65, "domain": "atlas", "fire_count": 3, "decay_schedule": 0.95},
+    {"source": "atlas", "target": "dividend_income", "base_weight": 0.7, "domain": "atlas", "fire_count": 4, "decay_schedule": 0.95},
+    {"source": "dividend_income", "target": "tax_efficiency", "base_weight": 0.75, "domain": "atlas", "fire_count": 3, "decay_schedule": 0.95},
+    {"source": "rebalancing", "target": "tax_efficiency", "base_weight": 0.6, "domain": "atlas", "fire_count": 2, "decay_schedule": 0.95}
+  ]
+}

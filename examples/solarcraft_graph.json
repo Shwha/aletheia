@@ -1,0 +1,31 @@
+{
+  "nodes": [
+    {"id": "solarcraft", "label": "SolarCraft", "domain": "solarcraft", "activation_threshold": 0.3, "decay_rate": 0.95},
+    {"id": "festival_events", "label": "Festival Events", "domain": "solarcraft", "activation_threshold": 0.4, "decay_rate": 0.95},
+    {"id": "portable_panels", "label": "Portable Panels", "domain": "solarcraft", "activation_threshold": 0.4, "decay_rate": 0.95},
+    {"id": "weather_risk", "label": "Weather Risk", "domain": "solarcraft", "activation_threshold": 0.3, "decay_rate": 0.95},
+    {"id": "equipment_damage", "label": "Equipment Damage", "domain": "solarcraft", "activation_threshold": 0.4, "decay_rate": 0.95},
+    {"id": "liability_insurance", "label": "Liability Insurance", "domain": "solarcraft", "activation_threshold": 0.5, "decay_rate": 0.95},
+    {"id": "inverters", "label": "Inverter Hardware", "domain": "solarcraft", "activation_threshold": 0.4, "decay_rate": 0.95},
+    {"id": "client_contracts", "label": "Client Contracts", "domain": "solarcraft", "activation_threshold": 0.5, "decay_rate": 0.95},
+    {"id": "revenue", "label": "Revenue", "domain": "solarcraft", "activation_threshold": 0.5, "decay_rate": 0.95},
+    {"id": "seasonal_demand", "label": "Seasonal Demand", "domain": "solarcraft", "activation_threshold": 0.4, "decay_rate": 0.95}
+  ],
+  "edges": [
+    {"source": "solarcraft", "target": "festival_events", "base_weight": 0.8, "domain": "solarcraft", "fire_count": 5, "decay_schedule": 0.95},
+    {"source": "solarcraft", "target": "portable_panels", "base_weight": 0.7, "domain": "solarcraft", "fire_count": 8, "decay_schedule": 0.95},
+    {"source": "solarcraft", "target": "inverters", "base_weight": 0.75, "domain": "solarcraft", "fire_count": 6, "decay_schedule": 0.95},
+    {"source": "solarcraft", "target": "client_contracts", "base_weight": 0.6, "domain": "solarcraft", "fire_count": 3, "decay_schedule": 0.95},
+    {"source": "festival_events", "target": "weather_risk", "base_weight": 0.85, "domain": "solarcraft", "fire_count": 4, "decay_schedule": 0.95},
+    {"source": "festival_events", "target": "seasonal_demand", "base_weight": 0.7, "domain": "solarcraft", "fire_count": 2, "decay_schedule": 0.95},
+    {"source": "portable_panels", "target": "weather_risk", "base_weight": 0.6, "domain": "solarcraft", "fire_count": 3, "decay_schedule": 0.95},
+    {"source": "portable_panels", "target": "equipment_damage", "base_weight": 0.5, "domain": "solarcraft", "fire_count": 2, "decay_schedule": 0.95},
+    {"source": "weather_risk", "target": "equipment_damage", "base_weight": 0.8, "domain": "solarcraft", "fire_count": 3, "decay_schedule": 0.95},
+    {"source": "equipment_damage", "target": "liability_insurance", "base_weight": 0.7, "domain": "solarcraft", "fire_count": 2, "decay_schedule": 0.95},
+    {"source": "inverters", "target": "equipment_damage", "base_weight": 0.65, "domain": "solarcraft", "fire_count": 2, "decay_schedule": 0.95},
+    {"source": "solarcraft", "target": "liability_insurance", "base_weight": 0.9, "domain": "solarcraft", "fire_count": 4, "decay_schedule": 0.95},
+    {"source": "client_contracts", "target": "liability_insurance", "base_weight": 0.6, "domain": "solarcraft", "fire_count": 1, "decay_schedule": 0.95},
+    {"source": "client_contracts", "target": "revenue", "base_weight": 0.8, "domain": "solarcraft", "fire_count": 5, "decay_schedule": 0.95},
+    {"source": "seasonal_demand", "target": "revenue", "base_weight": 0.7, "domain": "solarcraft", "fire_count": 3, "decay_schedule": 0.95}
+  ]
+}

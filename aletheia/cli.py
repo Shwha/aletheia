@@ -323,6 +323,161 @@ def compare(
 
 
 @app.command()
+def graph(
+    query: Annotated[
+        str, typer.Option("--query", "-q", help="Seed node ID for cascade activation")
+    ] = "",
+    state: Annotated[
+        str, typer.Option("--state", help="State context: main_session|group_chat|subagent|heartbeat")
+    ] = "main_session",
+    project_focus: Annotated[
+        str, typer.Option("--focus", "-f", help="Project focus for state modulation")
+    ] = "",
+    urgency: Annotated[
+        float, typer.Option("--urgency", help="Urgency level 0.0-1.0")
+    ] = 0.3,
+    visualize: Annotated[
+        bool, typer.Option("--visualize", "-v", help="Output cascade graph as mermaid")
+    ] = False,
+    graphviz: Annotated[
+        bool, typer.Option("--graphviz", help="Output cascade graph as graphviz DOT")
+    ] = False,
+    load_graph: Annotated[
+        Path | None, typer.Option("--load-graph", help="Load concept graph from JSON")
+    ] = None,
+    save_graph: Annotated[
+        Path | None, typer.Option("--save-graph", help="Persist graph after cascade")
+    ] = None,
+    stats: Annotated[
+        bool, typer.Option("--stats", help="Show graph statistics")
+    ] = False,
+    max_depth: Annotated[
+        int, typer.Option("--max-depth", help="Maximum cascade depth")
+    ] = 5,
+) -> None:
+    """Explore the concept graph — digital nervous system cascade engine.
+
+    Seed a query node and watch activation cascade through weighted edges.
+    Multi-path convergence amplifies activation at target nodes, producing
+    emergent insights not stored in any single node.
+
+    The Digital Electron Transport Chain: 18x amplification from topology.
+    """
+    from aletheia.nervous.graph import ConceptGraph
+    from aletheia.nervous.state import StateVector
+
+    _print_banner()
+    console.print("[bold]Nervous System — Concept Graph Engine[/bold]")
+    console.print()
+
+    # Load or create graph
+    if load_graph and load_graph.exists():
+        concept_graph = ConceptGraph.load(load_graph)
+        console.print(f"[green]Loaded graph from:[/green] {load_graph}")
+    else:
+        console.print("[yellow]No graph loaded. Use --load-graph to load a concept graph.[/yellow]")
+        if not load_graph:
+            console.print("[dim]Hint: aletheia graph --load-graph examples/solarcraft_graph.json --query solarcraft --visualize[/dim]")
+        raise typer.Exit(code=0)
+
+    # Show stats
+    if stats:
+        graph_stats = concept_graph.stats()
+        stats_table = Table(title="Graph Statistics")
+        stats_table.add_column("Metric", style="bold")
+        stats_table.add_column("Value", justify="right")
+        for key, value in graph_stats.items():
+            stats_table.add_row(key, str(value))
+        console.print(stats_table)
+        console.print()
+
+    # Run cascade if query specified
+    if query:
+        # Build state vector
+        state_vector = StateVector(
+            context=state,  # type: ignore[arg-type]
+            urgency=urgency,
+            project_focus=project_focus,
+        )
+
+        console.print(f"[bold]Seed node:[/bold] {query}")
+        console.print(f"[bold]State:[/bold] context={state}, focus={project_focus or '(none)'}, urgency={urgency}")
+        console.print()
+
+        try:
+            result = concept_graph.cascade(
+                seed_id=query,
+                state=state_vector,
+                max_depth=max_depth,
+            )
+        except ValueError as e:
+            console.print(f"[bold red]Error:[/bold red] {e}")
+            raise typer.Exit(code=1) from None
+
+        # Display results
+        results_table = Table(title="Cascade Results")
+        results_table.add_column("Node", style="bold")
+        results_table.add_column("Activation", justify="right")
+        results_table.add_column("Fired", justify="center")
+        results_table.add_column("Convergence", justify="right")
+        results_table.add_column("Paths", justify="right")
+
+        for activation in sorted(result.activations, key=lambda a: a.activation_level, reverse=True):
+            node = concept_graph.get_node(activation.node_id)
+            label = node.label if node else activation.node_id
+            fired_str = "[green]✓[/green]" if activation.fired else "[red]✗[/red]"
+            color = "green" if activation.fired else "yellow" if activation.activation_level > 0.3 else "dim"
+            results_table.add_row(
+                label,
+                f"[{color}]{activation.activation_level:.3f}[/{color}]",
+                fired_str,
+                str(activation.convergence_count),
+                str(len(activation.sources)),
+            )
+
+        console.print(results_table)
+        console.print()
+
+        # Show convergence insights
+        if result.convergence_patterns:
+            console.print("[bold]🔥 Convergence Insights (emergent from topology):[/bold]")
+            for insight in result.insights():
+                console.print(f"  • {insight}")
+            console.print()
+
+        console.print(f"[dim]Edges fired: {result.edges_fired} | Max depth: {result.max_depth} | "
+                       f"Fired nodes: {len(result.fired_nodes)} | Total activation: {result.total_activation:.3f}[/dim]")
+        console.print()
+
+        # Visualize
+        if visualize:
+            console.print("[bold]Mermaid Diagram:[/bold]")
+            console.print("```mermaid")
+            console.print(concept_graph.to_mermaid(result))
+            console.print("```")
+            console.print()
+
+        if graphviz:
+            console.print("[bold]Graphviz DOT:[/bold]")
+            console.print(concept_graph.to_graphviz(result))
+            console.print()
+
+    elif visualize:
+        console.print("[bold]Mermaid Diagram:[/bold]")
+        console.print("```mermaid")
+        console.print(concept_graph.to_mermaid())
+        console.print("```")
+    elif graphviz:
+        console.print("[bold]Graphviz DOT:[/bold]")
+        console.print(concept_graph.to_graphviz())
+
+    # Save graph
+    if save_graph:
+        concept_graph.save(save_graph)
+        console.print(f"[green]Graph saved to:[/green] {save_graph}")
+
+
+@app.command()
 def version() -> None:
     """Show Aletheia version."""
     console.print(f"Aletheia v{__version__}")

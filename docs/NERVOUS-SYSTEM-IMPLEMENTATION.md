@@ -1,0 +1,194 @@
+# Nervous System Implementation Guide
+
+> Phase 2 of the Aletheia framework — the transition from measurement to architecture.
+
+## Architecture Overview
+
+```
+┌─────────────────────────────────────────────────┐
+│                  State Vector                    │
+│  context | urgency | focus | relational_mode    │
+│  Modulates ALL edge weights without changing     │
+│  graph structure (neurochemical milieu)          │
+└───────────────────┬─────────────────────────────┘
+                    │ modulation_factor()
+┌───────────────────▼─────────────────────────────┐
+│              Layer 3: Concept Graph              │
+│  ┌──────┐    weight    ┌──────┐                 │
+│  │NodeA │──────0.8────▶│NodeB │                 │
+│  └──┬───┘              └──┬───┘                 │
+│     │ 0.7        0.9      │ 0.9                 │
+│  ┌──▼───┐              ┌──▼───┐                 │
+│  │NodeC │──────0.8────▶│NodeD │ ← CONVERGENCE   │
+│  └──────┘              └──────┘   (fires!)       │
+│                                                  │
+│  Plasticity: LTP + Decay + Pruning + Formation  │
+└───────────────────┬─────────────────────────────┘
+                    │ activation signals
+┌───────────────────▼─────────────────────────────┐
+│            Layer 2: Signal Routing               │
+│  Excitatory (Glutamate)  → activate + cascade   │
+│  Inhibitory (GABA)       → suppress             │
+│  Reward (Dopamine)       → reinforce pathway    │
+│  Baseline (Serotonin)    → stabilize            │
+│  Attention (Acetylcholine)→ focus subgraph      │
+│  Urgency (Norepinephrine)→ broaden activation   │
+└───────────────────┬─────────────────────────────┘
+                    │ transport
+┌───────────────────▼─────────────────────────────┐
+│           Layer 1: Substrate / Transport         │
+│  HTTP (C-fibers)      │ WebSocket (A-fibers)    │
+│  gRPC (neuromuscular) │ PubSub (broadcast)      │
+│  SharedFS (CSF)       │ Pipes (reflex arc)      │
+│                                                  │
+│  Pathway Registry + Myelin Scoring              │
+└─────────────────────────────────────────────────┘
+```
+
+## Module Map
+
+| Module | Layer | Purpose |
+|--------|-------|---------|
+| `aletheia/nervous/transport.py` | 1 - Substrate | Protocol types, Pathway with myelin scoring, PathwayRegistry |
+| `aletheia/nervous/signals.py` | 2 - Signaling | SignalClass enum, neurotransmitter mapping, SignalRouter |
+| `aletheia/nervous/graph.py` | 3 - Plasticity | ConceptNode, ConceptEdge, ConceptGraph, CascadeEngine |
+| `aletheia/nervous/state.py` | State Vector | StateVector with modulation, state-dependent retrieval |
+
+## The Digital Electron Transport Chain
+
+The cascade engine implements the ETC analogy as actual mechanics:
+
+1. **Seed activation** — Query node starts at 1.0 activation
+2. **Edge propagation** — Activation flows through weighted edges (weight × parent activation)
+3. **State modulation** — StateVector multiplies edge weights based on context
+4. **Convergence detection** — Multiple independent paths arriving at same node accumulate
+5. **Threshold firing** — Node fires when accumulated activation exceeds its threshold
+6. **Insight generation** — Convergence patterns describe emergent connections
+
+### Example: SolarCraft Cascade
+
+```
+"solarcraft" (seed, 1.0)
+  → "festival_events" (0.8)
+      → "weather_risk" (0.68)     ← path 1
+      → "seasonal_demand" (0.56)
+  → "portable_panels" (0.7)
+      → "weather_risk" (0.42)     ← path 2 CONVERGES!
+      → "equipment_damage" (0.35)
+  → "inverters" (0.75)
+      → "equipment_damage" (0.49) ← path 3
+  → "liability_insurance" (0.9)   ← direct path
+
+weather_risk convergence: 0.68 + 0.42 = 1.10 (threshold 0.3) → FIRES
+equipment_damage convergence: multi-path → FIRES
+liability_insurance: direct + cascaded → FIRES with amplified signal
+
+Emergent insight: SolarCraft needs equipment insurance because
+weather exposure at outdoor events risks Portable Panel/Inverter hardware.
+NOT stored anywhere. Generated by topology.
+```
+
+## Plasticity Mechanics
+
+```python
+# Long-Term Potentiation (Hebbian learning)
+edge.weight += reward * 0.05    # fire together, wire together
+
+# Decay (unused pathways atrophy)
+edge.weight *= 0.95 ** months   # monthly decay
+
+# Pruning (synapse death)
+if edge.weight < 0.05: remove   # dead connections pruned
+
+# Formation (synaptogenesis)
+new_edge.weight = 0.2           # novel co-activation creates weak edges
+```
+
+## State-Dependent Memory
+
+The same graph produces different activation patterns depending on the StateVector:
+
+```python
+# Business planning state
+state = StateVector(
+    context="main_session",
+    project_focus="solarcraft",    # Acetylcholine: focus boost
+    urgency=0.8,                  # Norepinephrine: broaden activation
+)
+# → solarcraft edges get 1.4x boost, others get 0.6x
+
+# Relaxed exploration
+state = StateVector(
+    context="heartbeat",
+    urgency=0.0,
+    user_state="curious",         # Broaden: 1.2x all edges
+)
+# → different activation pattern, same graph
+```
+
+State-dependent encoding: edges "remember" which states they fire in via `state_associations`. Over time, certain paths become preferentially activated in certain contexts.
+
+## CLI Usage
+
+```bash
+# Load a graph and run cascade
+aletheia graph --load-graph examples/solarcraft_graph.json --query solarcraft --visualize
+
+# With state modulation
+aletheia graph --load-graph graph.json --query solarcraft --focus solarcraft --urgency 0.8
+
+# Graphviz output
+aletheia graph --load-graph graph.json --query solarcraft --graphviz
+
+# Save modified graph (after cascade fires edges)
+aletheia graph --load-graph graph.json --query solarcraft --save-graph updated.json
+
+# Graph statistics
+aletheia graph --load-graph graph.json --stats
+```
+
+## Graph JSON Format
+
+```json
+{
+  "nodes": [
+    {
+      "id": "unique_id",
+      "label": "Human Readable",
+      "domain": "project_name",
+      "activation_threshold": 0.5,
+      "decay_rate": 0.95,
+      "metadata": {}
+    }
+  ],
+  "edges": [
+    {
+      "source": "node_a",
+      "target": "node_b",
+      "base_weight": 0.8,
+      "domain": "project_name",
+      "fire_count": 5,
+      "decay_schedule": 0.95,
+      "state_associations": {}
+    }
+  ]
+}
+```
+
+## Integration with Phase 1 Scoring
+
+Dimension 7 (Embodied Continuity) now has structural backing:
+- The concept graph IS sedimented memory (Merleau-Ponty)
+- LTP IS experience-dependent strengthening
+- State-dependent retrieval IS context-dependent recall
+- The graph metabolizes — it gets more efficient with use
+
+The nervous system transforms the prosthetic hippocampus gap from a measurement target into an engineering specification.
+
+## Test Coverage
+
+79 tests across all modules, 96% coverage:
+- Unit: StateVector modulation, edge weight decay, cascade propagation
+- Integration: Multi-hop cascade with convergence detection, state-dependent retrieval
+- Fixtures: SolarCraft, ATLAS, and Aletheia domain graphs
+- Lifecycle: Full edge formation → LTP → decay → pruning cycle

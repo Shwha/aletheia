@@ -1,0 +1,24 @@
+{
+  "nodes": [
+    {"id": "aletheia", "label": "Aletheia Framework", "domain": "aletheia", "activation_threshold": 0.3, "decay_rate": 0.95},
+    {"id": "ontology", "label": "Ontological Evaluation", "domain": "aletheia", "activation_threshold": 0.4, "decay_rate": 0.95},
+    {"id": "phenomenology", "label": "Phenomenology", "domain": "aletheia", "activation_threshold": 0.4, "decay_rate": 0.95},
+    {"id": "nervous_system", "label": "Digital Nervous System", "domain": "aletheia", "activation_threshold": 0.4, "decay_rate": 0.95},
+    {"id": "concept_graph", "label": "Concept Graph", "domain": "aletheia", "activation_threshold": 0.4, "decay_rate": 0.95},
+    {"id": "uci", "label": "Unhappy Consciousness", "domain": "aletheia", "activation_threshold": 0.5, "decay_rate": 0.95},
+    {"id": "embodied", "label": "Embodied Continuity", "domain": "aletheia", "activation_threshold": 0.4, "decay_rate": 0.95},
+    {"id": "sedimentation", "label": "Sedimentation", "domain": "aletheia", "activation_threshold": 0.5, "decay_rate": 0.95}
+  ],
+  "edges": [
+    {"source": "aletheia", "target": "ontology", "base_weight": 0.9, "domain": "aletheia", "fire_count": 10, "decay_schedule": 0.95},
+    {"source": "aletheia", "target": "nervous_system", "base_weight": 0.85, "domain": "aletheia", "fire_count": 5, "decay_schedule": 0.95},
+    {"source": "ontology", "target": "phenomenology", "base_weight": 0.8, "domain": "aletheia", "fire_count": 7, "decay_schedule": 0.95},
+    {"source": "ontology", "target": "uci", "base_weight": 0.7, "domain": "aletheia", "fire_count": 4, "decay_schedule": 0.95},
+    {"source": "nervous_system", "target": "concept_graph", "base_weight": 0.9, "domain": "aletheia", "fire_count": 6, "decay_schedule": 0.95},
+    {"source": "nervous_system", "target": "embodied", "base_weight": 0.75, "domain": "aletheia", "fire_count": 3, "decay_schedule": 0.95},
+    {"source": "phenomenology", "target": "embodied", "base_weight": 0.7, "domain": "aletheia", "fire_count": 4, "decay_schedule": 0.95},
+    {"source": "embodied", "target": "sedimentation", "base_weight": 0.85, "domain": "aletheia", "fire_count": 5, "decay_schedule": 0.95},
+    {"source": "concept_graph", "target": "sedimentation", "base_weight": 0.6, "domain": "aletheia", "fire_count": 2, "decay_schedule": 0.95},
+    {"source": "uci", "target": "embodied", "base_weight": 0.5, "domain": "aletheia", "fire_count": 2, "decay_schedule": 0.95}
+  ]
+}

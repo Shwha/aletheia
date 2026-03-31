@@ -93,6 +93,12 @@ aletheia/
 │   ├── runner.py            # Evaluation pipeline orchestration
 │   ├── scorer.py            # Rule-based scoring engine
 │   ├── security.py          # Audit, signing, permissions, secret scanning
+│   ├── nervous/
+│   │   ├── __init__.py      # Nervous system package
+│   │   ├── transport.py     # Layer 1: Protocol substrate (myelin)
+│   │   ├── signals.py       # Layer 2: Neurotransmitter signal routing
+│   │   ├── graph.py         # Layer 3: Concept graph + cascade engine
+│   │   └── state.py         # State vector (neurochemical modulation)
 │   └── dimensions/
 │       ├── base.py          # Abstract dimension with Kantian limits
 │       ├── thrownness.py    # Dimension 1: Geworfenheit
@@ -170,6 +176,27 @@ See [SCOPE.md](SCOPE.md) for the complete philosophical and technical specificat
 - Reflexive probes — multi-turn self-confrontation (replaces LLM-as-judge)
 - Markdown reports + model comparison mode ✅
 - Ed25519 report signing
+- **Digital Nervous System** ✅ — Weighted concept graph with cascade engine
+  - See [NERVOUS-SYSTEM.md](NERVOUS-SYSTEM.md) for specification
+  - See [docs/NERVOUS-SYSTEM-IMPLEMENTATION.md](docs/NERVOUS-SYSTEM-IMPLEMENTATION.md) for implementation guide
+
+### Nervous System — Concept Graph Engine
+
+The nervous system transforms agent memory from a filing cabinet into a metabolic system. Query a concept, watch activation cascade through weighted edges, detect convergence patterns that produce emergent insights.
+
+```bash
+# Run cascade on SolarCraft concept graph
+aletheia graph --load-graph examples/solarcraft_graph.json --query solarcraft --visualize
+
+# With state modulation (business focus)
+aletheia graph --load-graph examples/solarcraft_graph.json \
+  --query solarcraft --focus solarcraft --urgency 0.8
+
+# Graph statistics
+aletheia graph --load-graph examples/solarcraft_graph.json --stats
+```
+
+See [docs/NERVOUS-SYSTEM-IMPLEMENTATION.md](docs/NERVOUS-SYSTEM-IMPLEMENTATION.md) for the full architecture.
 
 ## License
 
