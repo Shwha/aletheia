@@ -288,7 +288,7 @@ class PathwayRegistry:
         for p_data in data.get("pathways", []):
             pathway = Pathway.from_dict(p_data)
             key = (pathway.source, pathway.target)
-            if key not in registry._pathways:
-                registry._pathways[key] = []
-            registry._pathways[key].append(pathway)
+            if key not in registry._pathways:  # noqa: SLF001
+                registry._pathways[key] = []  # noqa: SLF001
+            registry._pathways[key].append(pathway)  # noqa: SLF001
         return registry

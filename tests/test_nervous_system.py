@@ -11,21 +11,17 @@ Covers:
 
 from __future__ import annotations
 
-import json
-import time
 from pathlib import Path
 
 import pytest
 
 from aletheia.nervous.graph import (
-    CascadeResult,
     ConceptEdge,
     ConceptGraph,
     ConceptNode,
 )
 from aletheia.nervous.signals import (
     NeurotransmitterAnalog,
-    PropagationResult,
     Signal,
     SignalClass,
     SignalRouter,
@@ -82,7 +78,7 @@ class TestPathway:
             p.record_transmission(TransmissionRecord(
                 protocol=ProtocolType.HTTP, success=True
             ))
-        good_score = p.myelin_score
+
 
         for _ in range(10):
             p.record_transmission(TransmissionRecord(
@@ -692,7 +688,7 @@ class TestMultiHopCascade:
         """A → B → C → D → E — activation should propagate with decay."""
         g = ConceptGraph()
         for letter in "abcde":
-            g.add_node(ConceptNode(id=letter, label=letter.upper(), domain="test", activation_threshold=0.1))
+            g.add_node(ConceptNode(id=letter, label=letter.upper(), domain="test", activation_threshold=0.1))  # noqa: E501
         for src, tgt in [("a", "b"), ("b", "c"), ("c", "d"), ("d", "e")]:
             g.add_edge(ConceptEdge(source=src, target=tgt, base_weight=0.9, domain="test"))
 

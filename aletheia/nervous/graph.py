@@ -107,11 +107,11 @@ class ConceptEdge:
         if self.fire_count == 0:
             return self.base_weight
 
-        months_since_fire = (time.time() - self.last_fired) / (30 * 24 * 3600)
+        months_since_fire: float = (time.time() - self.last_fired) / (30 * 24 * 3600)
         if months_since_fire < 0.01:  # Less than ~7 hours
             return self.base_weight
 
-        decayed = self.base_weight * (self.decay_schedule ** months_since_fire)
+        decayed: float = self.base_weight * (self.decay_schedule ** months_since_fire)
         return max(0.0, decayed)
 
     def fire(self, reward: float = 0.0) -> None:
