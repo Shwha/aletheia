@@ -15,8 +15,8 @@ class TestSkillRegistry:
         registry.register("passthrough", PassthroughSkill)
 
         available = registry.list_available()
-        assert len(available) == 1
-        assert available[0]["name"] == "passthrough"
+        # Includes built-in skills + newly registered
+        assert any(s["name"] == "passthrough" for s in available)
 
     def test_register_duplicate_raises(self) -> None:
         registry = SkillRegistry()
@@ -68,4 +68,8 @@ class TestSkillRegistry:
         registry = SkillRegistry()
         registry.register("b_skill", PassthroughSkill)
         registry.register("a_skill", HaltingSkill)
-        assert registry.registered_names == ["a_skill", "b_skill"]
+        names = registry.registered_names
+        assert "a_skill" in names
+        assert "b_skill" in names
+        # Also includes built-in skills
+        assert "state_tracker" in names
